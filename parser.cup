@@ -1,0 +1,211 @@
+import java_cup.runtime.*;
+import java.util.*;
+
+parser code {:
+    private scanner s;
+    private final SemanticAnalyzer semantic = new SemanticAnalyzer();
+
+    public parser(scanner s) {
+        this.s = s;
+    }
+
+    public SemanticAnalyzer sem() {
+        return semantic;
+    }
+
+    @Override
+    public void syntax_error(Symbol current) {
+        String name = current == null ? "EOF" : sym.terminalNames[current.sym];
+        int line = current == null ? -1 : current.left;
+        int column = current == null ? -1 : current.right;
+        System.err.println("Erro sintatico perto de " + name + " na linha " + line + ", coluna " + column);
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol current) throws Exception {
+        throw new RuntimeException("Nao foi possivel recuperar o erro sintatico.");
+    }
+:}
+
+scan with {: return s.next_token(); :};
+
+terminal INT, FLOAT, BOOLEAN, VOID, IF, ELSE, WHILE, RETURN;
+terminal TRUE, FALSE;
+terminal PLUS, MINUS, TIMES, DIVIDE, UMINUS;
+terminal ASSIGN, EQ, NEQ, LT, LTE, GT, GTE, AND, OR, NOT;
+terminal SEMI, COMMA, LPAREN, RPAREN, LBRACE, RBRACE;
+terminal String ID, STRING_LITERAL;
+terminal Integer INT_LITERAL;
+terminal Double FLOAT_LITERAL;
+
+non terminal program, function_list, function_decl, function_header;
+non terminal parameters_opt, parameter_list, parameter;
+non terminal block, statement_list, statement, declaration, assignment;
+non terminal if_statement, else_part, while_statement, return_statement, expr_statement;
+non terminal String return_type, value_type, expr;
+non terminal java.util.List arg_list_opt, arg_list;
+
+precedence left OR;
+precedence left AND;
+precedence left EQ, NEQ;
+precedence left LT, LTE, GT, GTE;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+precedence right NOT;
+precedence right UMINUS;
+
+start with program;
+
+program ::= function_list
+            {: parser.sem().validateProgram(); :}
+          ;
+
+function_list ::= function_list function_decl
+                | function_decl
+                ;
+
+function_decl ::= function_header block
+                  {: parser.sem().endFunction(); :}
+                ;
+
+function_header ::= return_type:t ID:name LPAREN
+                    {: parser.sem().beginFunction(t, name); :}
+                    parameters_opt RPAREN
+                  ;
+
+parameters_opt ::= parameter_list
+                 | /* empty */
+                 ;
+
+parameter_list ::= parameter_list COMMA parameter
+                 | parameter
+                 ;
+
+parameter ::= value_type:t ID:name
+              {: parser.sem().addParameter(t); parser.sem().declareVariable(t, name); :}
+            ;
+
+return_type ::= value_type:t
+                {: RESULT = t; :}
+              | VOID
+                {: RESULT = "void"; :}
+              ;
+
+value_type ::= INT
+               {: RESULT = "int"; :}
+             | FLOAT
+               {: RESULT = "float"; :}
+             | BOOLEAN
+               {: RESULT = "boolean"; :}
+             ;
+
+block ::= LBRACE
+          {: parser.sem().enterScope(); :}
+          statement_list RBRACE
+          {: parser.sem().exitScope(); :}
+        ;
+
+statement_list ::= statement_list statement
+                 | /* empty */
+                 ;
+
+statement ::= declaration
+            | assignment
+            | if_statement
+            | while_statement
+            | return_statement
+            | expr_statement
+            | block
+            ;
+
+declaration ::= value_type:t ID:name SEMI
+                {: parser.sem().declareVariable(t, name); :}
+              | value_type:t ID:name ASSIGN expr:e SEMI
+                {: parser.sem().declareVariable(t, name); parser.sem().checkAssignment(t, e, "inicializacao de '" + name + "'"); :}
+              ;
+
+assignment ::= ID:name ASSIGN expr:e SEMI
+               {: parser.sem().assignVariable(name, e); :}
+             ;
+
+if_statement ::= IF LPAREN expr:e RPAREN
+                 {: parser.sem().requireBoolean(e, "condicao do if"); :}
+                 block else_part
+               ;
+
+else_part ::= ELSE block
+            | /* empty */
+            ;
+
+while_statement ::= WHILE LPAREN expr:e RPAREN
+                    {: parser.sem().requireBoolean(e, "condicao do while"); :}
+                    block
+                  ;
+
+return_statement ::= RETURN expr:e SEMI
+                     {: parser.sem().checkReturn(e); :}
+                   | RETURN SEMI
+                     {: parser.sem().checkReturn("void"); :}
+                   ;
+
+expr_statement ::= expr SEMI
+                 ;
+
+arg_list_opt ::= arg_list:l
+                 {: RESULT = l; :}
+               | /* empty */
+                 {: RESULT = new ArrayList(); :}
+               ;
+
+arg_list ::= expr:e
+             {: ArrayList list = new ArrayList(); list.add(e); RESULT = list; :}
+           | arg_list:l COMMA expr:e
+             {: l.add(e); RESULT = l; :}
+           ;
+
+expr ::= expr:e1 OR expr:e2
+         {: RESULT = parser.sem().checkLogical(e1, e2); :}
+       | expr:e1 AND expr:e2
+         {: RESULT = parser.sem().checkLogical(e1, e2); :}
+       | expr:e1 EQ expr:e2
+         {: RESULT = parser.sem().checkEquality(e1, e2); :}
+       | expr:e1 NEQ expr:e2
+         {: RESULT = parser.sem().checkEquality(e1, e2); :}
+       | expr:e1 LT expr:e2
+         {: RESULT = parser.sem().checkRelational(e1, e2); :}
+       | expr:e1 LTE expr:e2
+         {: RESULT = parser.sem().checkRelational(e1, e2); :}
+       | expr:e1 GT expr:e2
+         {: RESULT = parser.sem().checkRelational(e1, e2); :}
+       | expr:e1 GTE expr:e2
+         {: RESULT = parser.sem().checkRelational(e1, e2); :}
+       | expr:e1 PLUS expr:e2
+         {: RESULT = parser.sem().checkArithmetic(e1, e2); :}
+       | expr:e1 MINUS expr:e2
+         {: RESULT = parser.sem().checkArithmetic(e1, e2); :}
+       | expr:e1 TIMES expr:e2
+         {: RESULT = parser.sem().checkArithmetic(e1, e2); :}
+       | expr:e1 DIVIDE expr:e2
+         {: RESULT = parser.sem().checkArithmetic(e1, e2); :}
+       | MINUS expr:e
+         {: RESULT = parser.sem().checkUnaryMinus(e); :}
+         %prec UMINUS
+       | NOT expr:e
+         {: RESULT = parser.sem().checkNot(e); :}
+       | LPAREN expr:e RPAREN
+         {: RESULT = e; :}
+       | ID:name LPAREN arg_list_opt:args RPAREN
+         {: RESULT = parser.sem().callFunction(name, args); :}
+       | ID:name
+         {: RESULT = parser.sem().useVariable(name); :}
+       | INT_LITERAL
+         {: RESULT = "int"; :}
+       | FLOAT_LITERAL
+         {: RESULT = "float"; :}
+       | STRING_LITERAL
+         {: RESULT = "string"; :}
+       | TRUE
+         {: RESULT = "boolean"; :}
+       | FALSE
+         {: RESULT = "boolean"; :}
+       ;

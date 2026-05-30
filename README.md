@@ -10,6 +10,7 @@ Este projeto implementa um front-end simples de compilador usando JFlex e JCup.
 - `Main.java`: demonstra a integracao entre scanner e parser.
 - `input.txt`: codigo-fonte de exemplo da linguagem.
 - `inputs/`: codigos de teste separados por objetivo.
+- `lib/`: arquivos `.jar` necessarios para JFlex e JCup.
 - `run.sh`: gera, compila e executa a solucao integrada.
 - `run_all.sh`: gera, compila e executa todos os testes de `inputs/`.
 
@@ -45,7 +46,7 @@ Para executar todos os testes:
 bash run_all.sh
 ```
 
-O script usa os arquivos `.jar` da pasta `../CompiladorFrontEnd-master/lib`:
+Os scripts usam os arquivos `.jar` da pasta local `lib/`:
 
 - `jflex-full-1.9.1.jar`
 - `java-cup-11b.jar`

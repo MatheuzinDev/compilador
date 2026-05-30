@@ -1,7 +1,8 @@
-zset -euo pipefail
+#!/usr/bin/env bash
+set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-LIB="$ROOT/../CompiladorFrontEnd-master/lib"
+LIB="$ROOT/lib"
 CP=".:$LIB/java-cup-11b-runtime.jar:$LIB/java-cup-11b.jar"
 INPUT="${1:-input.txt}"
 

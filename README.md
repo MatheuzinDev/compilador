@@ -11,8 +11,10 @@ Este projeto implementa um front-end simples de compilador usando JFlex e JCup.
 - `input.txt`: codigo-fonte de exemplo da linguagem.
 - `inputs/`: codigos de teste separados por objetivo.
 - `lib/`: arquivos `.jar` necessarios para JFlex e JCup.
-- `run.sh`: gera, compila e executa a solucao integrada.
-- `run_all.sh`: gera, compila e executa todos os testes de `inputs/`.
+- `run.sh`: gera, compila e executa a solucao integrada em Linux, macOS, WSL ou Git Bash.
+- `run_all.sh`: gera, compila e executa todos os testes de `inputs/` em Linux, macOS, WSL ou Git Bash.
+- `run.bat`: gera, compila e executa a solucao integrada no Windows CMD.
+- `run_all.bat`: gera, compila e executa todos os testes de `inputs/` no Windows CMD.
 
 ## Linguagem Suportada
 
@@ -28,7 +30,9 @@ A linguagem e parecida com Java/C, mas simplificada:
 
 ## Como Executar
 
-Execute a partir desta pasta:
+Execute a partir desta pasta.
+
+Linux, macOS, WSL ou Git Bash:
 
 ```bash
 bash run.sh
@@ -44,6 +48,24 @@ Para executar todos os testes:
 
 ```bash
 bash run_all.sh
+```
+
+Windows CMD:
+
+```bat
+run.bat
+```
+
+Para executar um input especifico:
+
+```bat
+run.bat inputs\04_erro_sintatico.txt
+```
+
+Para executar todos os testes:
+
+```bat
+run_all.bat
 ```
 
 Os scripts usam os arquivos `.jar` da pasta local `lib/`:

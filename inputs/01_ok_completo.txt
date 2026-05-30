@@ -1,0 +1,35 @@
+int soma(int a, int b) {
+    int resultado;
+    resultado = a + b;
+    return resultado;
+}
+
+float media(int total, int quantidade) {
+    return total / quantidade;
+}
+
+int main() {
+    int x;
+    int y;
+    int total;
+    float valor;
+    boolean maior;
+
+    x = 10;
+    y = 20;
+    total = soma(x, y);
+    valor = media(total, 2);
+    maior = total > 20;
+
+    if (maior) {
+        total = total + 1;
+    } else {
+        total = total - 1;
+    }
+
+    while (x < total) {
+        x = x + 1;
+    }
+
+    return 0;
+}

@@ -9,7 +9,9 @@ Este projeto implementa um front-end simples de compilador usando JFlex e JCup.
 - `SemanticAnalyzer.java`: tabela de simbolos e checagens de tipos.
 - `Main.java`: demonstra a integracao entre scanner e parser.
 - `input.txt`: codigo-fonte de exemplo da linguagem.
+- `inputs/`: codigos de teste separados por objetivo.
 - `run.sh`: gera, compila e executa a solucao integrada.
+- `run_all.sh`: gera, compila e executa todos os testes de `inputs/`.
 
 ## Linguagem Suportada
 
@@ -31,6 +33,18 @@ Execute a partir desta pasta:
 bash run.sh
 ```
 
+Para executar um input especifico:
+
+```bash
+bash run.sh inputs/04_erro_sintatico.txt
+```
+
+Para executar todos os testes:
+
+```bash
+bash run_all.sh
+```
+
 O script usa os arquivos `.jar` da pasta `../CompiladorFrontEnd-master/lib`:
 
 - `jflex-full-1.9.1.jar`
@@ -46,3 +60,21 @@ O programa imprime:
 - Resultado da analise semantica.
 
 Para o `input.txt` atual, a analise sintatica e semantica deve terminar com sucesso.
+
+## Casos de Teste
+
+| Arquivo | Objetivo |
+|---|---|
+| `inputs/01_ok_completo.txt` | Programa valido completo com funcoes, variaveis, `if`, `else`, `while` e `return`. |
+| `inputs/02_ok_expressoes.txt` | Programa valido focado em expressoes aritmeticas, relacionais e logicas. |
+| `inputs/03_erro_lexico.txt` | Demonstra erro lexico com caractere invalido. |
+| `inputs/04_erro_sintatico.txt` | Demonstra erro sintatico com `;` faltando. |
+| `inputs/05_erro_variavel_nao_declarada.txt` | Usa variavel antes da declaracao. |
+| `inputs/06_erro_variavel_duplicada.txt` | Declara a mesma variavel duas vezes no mesmo escopo. |
+| `inputs/07_erro_tipo_atribuicao.txt` | Atribui valor boolean em variavel `int`. |
+| `inputs/08_erro_funcao_nao_declarada.txt` | Chama uma funcao inexistente. |
+| `inputs/09_erro_argumentos_funcao.txt` | Chama funcao com argumento de tipo incorreto. |
+| `inputs/10_erro_retorno.txt` | Retorna tipo incompativel com o tipo da funcao. |
+| `inputs/11_erro_condicao.txt` | Usa expressao nao booleana como condicao de `if`. |
+
+Os testes com erro devem falhar de proposito. Eles servem para demonstrar que o analisador detecta problemas lexicos, sintaticos e semanticos.

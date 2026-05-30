@@ -1,0 +1,19 @@
+int calcula(int a, int b) {
+    int resultado;
+    boolean valido;
+
+    resultado = (a + b) * 2 - 3;
+    valido = resultado >= 10 && a != b;
+
+    if (valido || false) {
+        resultado = resultado / 2;
+    }
+
+    return resultado;
+}
+
+int main() {
+    int valor;
+    valor = calcula(4, 8);
+    return valor;
+}

@@ -1,0 +1,9 @@
+int main() {
+    int x;
+    boolean ligado;
+
+    ligado = true;
+    x = ligado;
+
+    return x;
+}
